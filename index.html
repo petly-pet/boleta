@@ -116,6 +116,7 @@
             const initial = parseInt(document.getElementById("initial").value) || 0;
             const daily = parseInt(document.getElementById("daily").value) || 0;
             const final = initial + daily;
+            let total = final; // <-- Aquí se asigna el total igual al fondo final
 
             const bills = {
                 20000: parseInt(document.getElementById("bill20000").value) || 0,
@@ -129,7 +130,6 @@
                 10: parseInt(document.getElementById("bill10").value) || 0
             };
 
-            let total = 0;
             const now = new Date();
             const fecha = now.toLocaleDateString("es-CL");
             const hora = now.toLocaleTimeString("es-CL");
@@ -154,7 +154,6 @@
                 const cant = bills[valor];
                 if (cant > 0) {
                     const subtotal = cant * parseInt(valor);
-                    total += subtotal;
                     doc.text(`${cant} x $${formatearNumeroConPuntos(valor)}`, 4, y);
                     doc.text(`$${formatearNumeroConPuntos(subtotal)}`, 76, y, { align: "right" });
                     y += 5;
@@ -170,8 +169,6 @@
             doc.setFont("courier", "normal");
             doc.text("Fondo inicial", 4, y); doc.text(`$${formatearNumeroConPuntos(initial)}`, 76, y, { align: "right" }); y += 5;
             doc.text("Fondo diario", 4, y); doc.text(`$${formatearNumeroConPuntos(daily)}`, 76, y, { align: "right" }); y += 5;
-            doc.text("Fondo final", 4, y); doc.text(`$${formatearNumeroConPuntos(final)}`, 76, y, { align: "right" }); y += 5;
-            doc.text("Diferencia", 4, y); doc.text(`$${formatearNumeroConPuntos(total - final)}`, 76, y, { align: "right" }); y += 7;
 
             doc.setFont("courier", "italic");
             doc.text("Cierre de turno realizado", 40, y, { align: "center" });

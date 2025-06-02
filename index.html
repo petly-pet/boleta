@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Recibo Fondo Diario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
+        <h1 class="text-2xl font-bold text-center mb-4">Registro Fondo Diario</h1>
+
+        <form id="cashForm" class="space-y-3">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nombre de encargado</label>
+                <input type="text" id="worker" class="mt-1 w-full border rounded px-3 py-2"
+                    placeholder="Ej: Juan Pérez" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Fondo inicial</label>
+                <input type="number" id="initial" class="mt-1 w-full border rounded px-3 py-2"
+                    placeholder="Ej: 10000" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Fondo diario</label>
+                <input type="number" id="daily" class="mt-1 w-full border rounded px-3 py-2" placeholder="Ej: 50000" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Fondo final (calculado)</label>
+                <input type="number" id="final" class="mt-1 w-full border rounded px-3 py-2 bg-gray-100 text-gray-500"
+                    readonly />
+            </div>
+
+            <h2 class="text-lg font-semibold mt-4">Billetes y monedas</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div><label class="text-sm">$20000</label><input type="number" id="bill20000"
+                        class="w-full border rounded px-2 py-1"></div>
+                <div><label class="text-sm">$10000</label><input type="number" id="bill10000"
+                        class="w-full border rounded px-2 py-1"></div>
+                <div><label class="text-sm">$5000</label><input type="number" id="bill5000"
+                        class="w-full border rounded px-2 py-1"></div>
+                <div><label class="text-sm">$2000</label><input type="number" id="bill2000"
+                        class="w-full border rounded px-2 py-1"></div>
+                <div><label class="text-sm">$1000</label><input type="number" id="bill1000"
+                        class="w-full border rounded px-2 py-1"></div>
+                <div><label class="text-sm">$500</label><input type="number" id="bill500"
+                        class="w-full border rounded px-2 py-1"></div>
+                <div><label class="text-sm">$100</label><input type="number" id="bill100"
+                        class="w-full border rounded px-2 py-1"></div>
+                <div><label class="text-sm">$50</label><input type="number" id="bill50"
+                        class="w-full border rounded px-2 py-1"></div>
+                <div><label class="text-sm">$10</label><input type="number" id="bill10"
+                        class="w-full border rounded px-2 py-1"></div>
+            </div>
+
+            <button type="button" onclick="generatePDF()"
+                class="w-full bg-black text-white py-2 rounded mt-4 hover:bg-gray-800">
+                Generar Recibo PDF
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function actualizarFondoFinal() {
+            const inicial = parseInt(document.getElementById("initial").value) || 0;
+            const diario = parseInt(document.getElementById("daily").value) || 0;
+            document.getElementById("final").value = inicial + diario;
+        }
+
+        document.getElementById("initial").addEventListener("input", actualizarFondoFinal);
+        document.getElementById("daily").addEventListener("input", actualizarFondoFinal);
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [80, 140] });
+
+            const worker = document.getElementById("worker").value.trim() || "Sin nombre";
+            const initial = parseInt(document.getElementById("initial").value) || 0;
+            const daily = parseInt(document.getElementById("daily").value) || 0;
+            const final = initial + daily;
+
+            const bills = {
+                20000: parseInt(document.getElementById("bill20000").value) || 0,
+                10000: parseInt(document.getElementById("bill10000").value) || 0,
+                5000: parseInt(document.getElementById("bill5000").value) || 0,
+                2000: parseInt(document.getElementById("bill2000").value) || 0,
+                1000: parseInt(document.getElementById("bill1000").value) || 0,
+                500: parseInt(document.getElementById("bill500").value) || 0,
+                100: parseInt(document.getElementById("bill100").value) || 0,
+                50: parseInt(document.getElementById("bill50").value) || 0,
+                10: parseInt(document.getElementById("bill10").value) || 0
+            };
+
+            let total = 0;
+            const now = new Date();
+            const fecha = now.toLocaleDateString("es-CL");
+            const hora = now.toLocaleTimeString("es-CL");
+            const nombreArchivo = now.toISOString().split("T")[0] + ".pdf";
+
+            let y = 10;
+            doc.setFont("courier", "bold");
+            doc.setFontSize(12);
+            doc.text("MASCOTERIA BENJI", 40, y, { align: "center" }); y += 6;
+
+            doc.setFontSize(8);
+            doc.setFont("courier", "normal");
+            doc.text(`Recibo realizado: ${worker}`, 40, y, { align: "center" }); y += 4;
+            doc.text(`${fecha} - ${hora}`, 40, y, { align: "center" }); y += 4;
+            doc.text("Gonzales videla #2474", 40, y, { align: "center" }); y += 4;
+
+            doc.setFont("courier", "bold");
+            doc.text("------------------------------", 40, y, { align: "center" }); y += 5;
+
+            doc.setFont("courier", "normal");
+            for (let valor in bills) {
+                const cant = bills[valor];
+                if (cant > 0) {
+                    const subtotal = cant * parseInt(valor);
+                    total += subtotal;
+                    doc.text(`${cant} x $${valor}`, 4, y);
+                    doc.text(`$${subtotal}`, 76, y, { align: "right" });
+                    y += 5;
+                }
+            }
+
+            y += 2;
+            doc.setFont("courier", "bold");
+            doc.text("------------------------------", 40, y, { align: "center" }); y += 5;
+
+            doc.text("Total", 4, y); doc.text(`$${total}`, 76, y, { align: "right" }); y += 5;
+
+            doc.setFont("courier", "normal");
+            doc.text("Fondo inicial", 4, y); doc.text(`$${initial}`, 76, y, { align: "right" }); y += 5;
+            doc.text("Fondo diario", 4, y); doc.text(`$${daily}`, 76, y, { align: "right" }); y += 5;
+            doc.text("Fondo final", 4, y); doc.text(`$${final}`, 76, y, { align: "right" }); y += 5;
+            doc.text("Diferencia", 4, y); doc.text(`$${total - final}`, 76, y, { align: "right" }); y += 7;
+
+            doc.setFont("courier", "italic");
+            doc.text("Cierre de turno realizado", 40, y, { align: "center" });
+
+            doc.save(nombreArchivo);
+        }
+    </script>
+</body>
+
+</html>

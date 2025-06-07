@@ -151,7 +151,7 @@
       const now = new Date();
       const fecha = now.toLocaleDateString("es-CL");
       const hora = now.toLocaleTimeString("es-CL");
-      const nombreArchivo = now.toISOString().split("T")[0] + ".pdf";
+      const nombreArchivo = fecha.split("/").reverse().join("-") + ".pdf";
 
       let y = 10;
       doc.setFont("courier", "bold");

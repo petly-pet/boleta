@@ -113,7 +113,7 @@
       const gastos = obtenerGastos();
       const totalGastos = gastos.reduce((acc, g) => acc + g.monto, 0);
       const fondoInicial = limpiarNumero(document.getElementById("initial").value);
-      const fondoDiario = sumaBilletes - fondoInicial;
+      const fondoDiario = (sumaBilletes - fondoInicial) + totalGastos;
 
       document.getElementById("daily").value = formatearNumeroConPuntos(fondoDiario);
       document.getElementById("final").value = formatearNumeroConPuntos(sumaBilletes - totalGastos);

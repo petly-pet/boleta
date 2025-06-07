@@ -92,32 +92,39 @@
       contenedor.appendChild(div);
     }
 
-    function calcularFondoDiario() {
-      const valores = {
-        20000: parseInt(document.getElementById("bill20000").value) || 0,
-        10000: parseInt(document.getElementById("bill10000").value) || 0,
-        5000: parseInt(document.getElementById("bill5000").value) || 0,
-        2000: parseInt(document.getElementById("bill2000").value) || 0,
-        1000: parseInt(document.getElementById("bill1000").value) || 0,
-        500: parseInt(document.getElementById("bill500").value) || 0,
-        100: parseInt(document.getElementById("bill100").value) || 0,
-        50: parseInt(document.getElementById("bill50").value) || 0,
-        10: parseInt(document.getElementById("bill10").value) || 0,
-      };
+function calcularFondoDiario() {
+  const valores = {
+    20000: parseInt(document.getElementById("bill20000").value) || 0,
+    10000: parseInt(document.getElementById("bill10000").value) || 0,
+    5000: parseInt(document.getElementById("bill5000").value) || 0,
+    2000: parseInt(document.getElementById("bill2000").value) || 0,
+    1000: parseInt(document.getElementById("bill1000").value) || 0,
+    500: parseInt(document.getElementById("bill500").value) || 0,
+    100: parseInt(document.getElementById("bill100").value) || 0,
+    50: parseInt(document.getElementById("bill50").value) || 0,
+    10: parseInt(document.getElementById("bill10").value) || 0,
+  };
 
-      let sumaBilletes = 0;
-      for (let valor in valores) {
-        sumaBilletes += valores[valor] * parseInt(valor);
-      }
+  let sumaBilletes = 0;
+  for (let valor in valores) {
+    sumaBilletes += valores[valor] * parseInt(valor);
+  }
 
-      const gastos = obtenerGastos();
-      const totalGastos = gastos.reduce((acc, g) => acc + g.monto, 0);
-      const fondoInicial = limpiarNumero(document.getElementById("initial").value);
-      const fondoDiario = (sumaBilletes - fondoInicial) + totalGastos;
+  const gastos = obtenerGastos();
+  const totalGastos = gastos.reduce((acc, g) => acc + g.monto, 0);
+  const fondoInicial = limpiarNumero(document.getElementById("initial").value);
 
-      document.getElementById("daily").value = formatearNumeroConPuntos(fondoDiario);
-      document.getElementById("final").value = formatearNumeroConPuntos(sumaBilletes - totalGastos);
-    }
+  // ✅ Fondo diario generado (incluye lo que se gastó)
+  const fondoDiario = sumaBilletes + totalGastos - fondoInicial;
+
+  // ✅ Lo que debería haber en caja (idealmente igual a sumaBilletes)
+  const fondoFinalEsperado = fondoInicial + fondoDiario - totalGastos;
+
+  // Mostramos
+  document.getElementById("daily").value = formatearNumeroConPuntos(fondoDiario);
+  document.getElementById("final").value = formatearNumeroConPuntos(fondoFinalEsperado);
+}
+
 
     const billetes = ["20000", "10000", "5000", "2000", "1000", "500", "100", "50", "10"];
     billetes.forEach(denom => {
